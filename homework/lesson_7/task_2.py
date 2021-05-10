@@ -9,6 +9,6 @@ that it works as intended."""
 
 def make_country(country_name, country_capital):
     countries_dict = {country_name: country_capital}
-    return print(countries_dict)
+    return countries_dict
 
-make_country(input('Enter your country, please.\n'), input("Enter your capital, please.\n"))
+print(make_country(input('Enter your country, please.\n'), input("Enter your capital, please.\n")))

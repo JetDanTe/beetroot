@@ -8,7 +8,8 @@ the name of your favorite movie. The function should then print “My favorite m
 
 
 def favourite_movie(movie):
-    return print(f"Your favourite movie is: {movie}")
+    return movie
 
 
-favourite_movie(input('Hello, enter your favourite movie:\n'))
+movie = favourite_movie(input('Hello, enter your favourite movie:\n'))
+print(f"Your favourite movie is: {favourite_movie(movie)}")

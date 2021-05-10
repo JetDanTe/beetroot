@@ -23,4 +23,4 @@ def make_operation(operator, *numbers):
 
 print(f"Sum of numbers {make_operation('+', 5, 5, 5)}.\n"
       f"Multiplication of numbers {make_operation('*', 4, 4, 4)}.\n"
-      f"Вifference of numbers {make_operation('-', 5, 5, 5)}.\n")
+      f"Difference of numbers {make_operation('-', 5, 5, 5)}.\n")
