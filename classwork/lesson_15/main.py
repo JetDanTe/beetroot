@@ -1,7 +1,7 @@
-from lesson_15.user import Person
-from lesson_15.base import Base
-from lesson_15.inventory import get_prihod
-from lesson_15.lift import Elevator
+from classwork.lesson_15.user import Person
+from classwork.lesson_15.base import Base
+from classwork.lesson_15.inventory import get_prihod
+from classwork.lesson_15.lift import Elevator
 
 if __name__ == '__main__':
     suez = Base("Suez Canal")

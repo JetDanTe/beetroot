@@ -1,6 +1,6 @@
 import random
 
-from lesson_15.inventory import Inventory
+from classwork.lesson_15.inventory import Inventory
 
 
 class Base:

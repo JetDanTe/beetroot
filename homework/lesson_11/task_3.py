@@ -54,60 +54,118 @@ s.sell(‘Ramen’, 10)
 assert s.get_product_info(‘Ramen’) == (‘Ramen’, 290)
 
 ```"""
-from pprint import pprint
+
+import pickle
+from io import open
+from typing import Dict
+from product import Product
+import json
 
 
-class Product:
-    def __init__(self, type, name, price):
-        self.price = price
+class Store:
+    nacenka: int
+    store: Dict
+
+    def __init__(self, name, nacenka):
+        self.nacenka = nacenka
         self.name = name
-        self.type = type
-        self.product_dict = {"Type": self.type, "Name": self.name, "Price": self.price}
+        self.store = {}
+        self.moneys = 0
+        self.__filename = f"{self.name}.json"
 
-    def __repr__(self):
-        return f"{self.type}\t{self.name}"
+    def add_product(self, prod: Product, count):
+        self.store.update({prod: {"Count": count, "Sell_price": self.__calcprice(prod.price)}})
 
+    def display(self):
+        print(f"Store {self.name}. In cashbox  {self.moneys} money.")
+        for prod, value in self.store.items():
+            prod: Product
+            value: Dict
+            print(prod, value)
 
-class ProductStore:
-        additional_price_percent: int
+    def __calcprice(self, prod_price):
+        return round(prod_price * (1 + self.nacenka / 100), 3)
 
-        def __init__(self, additional_price_percent):
-            self.additional_price_percent = additional_price_percent
+    def __get_product(self, name):
+        for prod in self.store:
+            if prod.name == name:
+                return prod
+        return None
+
+    def sell(self, prod_name, p_count):
+        prod = self.__get_product(prod_name)
+        if prod and self.store[prod]["Count"] >= p_count > 0:
+            self.store[prod]["Count"] -= p_count
+            self.moneys += self.store[prod]["Sell_price"] * p_count
+
+    def save_pickle(self):
+        with open(self.__filename, "wb") as fo:
+            pickle.dump(self, fo)
+        print("Store info successfully saved")
+
+    def load_pickle(self):
+        with open(self.__filename, 'rb') as fi:
+            aself = pickle.load(fi)
+            print("ALERT", aself.moneys)
+        print("Store info successfully loaded")
+        return aself
+
+    def save_json(self):
+        with open(self.__filename, "w") as fo:
+            data = {"Moneys": self.moneys, "Store": []}
+            slist = []
+            for prod in self.store:
+                adict = prod.get_dict()
+                adict.update(self.store.get(prod))
+                slist.append(adict)
+            data["store"] = slist
+            print(data)
+            json.dump(data, fo)
+
+    def load_json(self):
+        with open(self.__filename) as fi:
+            data = json.load(fi)
+            self.moneys = data.pop("Moneys")
             self.store = {}
+            for prods in data["Store"]:
+                p = Product(prods.get("Name"), prods.get("Type"), prods.get("Price"))
+                self.store[p] = {"Count": prods.get("Count"), "Sell_price": prods.get("sell_price")}
+            print("Store info successfully loaded")
 
-        def add(self, prod: Product, quantity):
-            percent_from_price = prod.product_dict["Price"] / 100 * self.additional_price_percent
-            new_price = prod.product_dict["Price"] + percent_from_price
-            self.store.update({prod: {"Quantity": quantity, "Price": new_price}})
+if __name__ == '__main__':
+    a1 = Product("Хлеб", "Мучное", 10)
+    a2 = Product("Булка", "Мучное", 12)
+    a3 = Product("Батон", "Мучное", 14)
 
-        def set_discount(self, prod: Product, identifier, percent, identifier_type=""):
-            percent_from_price = prod.product_dict["Price"] * percent / 100
-            print(percent_from_price)
-            new_price = prod.product_dict["Price"] - percent_from_price
-            print(new_price)
-            for product in prod.product_dict:
-                if identifier in prod.product_dict["Name"]:
-                    prod.product_dict["Price"] = new_price
+    s1 = Store("SuperStore", 15)
+    s2 = Store("ASHOT", 85)
 
-        def show_store(self):
-            for prod, value in self.store.items():
-                prod: Product
-                value: dict
-                print(prod, value)
+    s1.add_product(a1, 10)
+    s1.add_product(a2, 10)
+    s1.add_product(a3, 10)
 
+    s2.add_product(a1, 5)
+    s2.add_product(a2, 6)
+    s2.add_product(a3, 4)
 
+    # s1.display()
+    # s2.display()
 
-p = Product('Sport', 'Football T-Shirt', 100)
-p2 = Product("Food", 'Ramen', 1.5)
+    s1.sell("Хлеб", 5)
+    s2.sell("Хлеб", 2)
+    s1.sell("Булка", 4)
+    s2.sell("Булка", -10)
+    # a1.name = 'Paneton'
+    # a1.price = 305
 
-s = ProductStore(30)
-s.add(p, 30)
-s.add(p2, 20)
-s.set_discount(p, "Football T-Shirt", 10)
-s.show_store()
-# print(s.set_discount("Football T-short", 15))
-# s.add(p, 10)
-
-
-
+    s1.display()
+    # s2.display()
+    s1.save_json()
+    s1.store = {}
+    s1.moneys = 0
+    s1.display()
+    s1.load_json()
+    #
+    # s1 = s1.load()
+    s1.display()
 
