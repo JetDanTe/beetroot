@@ -40,6 +40,23 @@ class Diikstra:
                 neighbours_set.add(h_2)
         return neighbours_set
 
+    def build_chain(self, end_point):
+        host = list((end_point,))
+        while self.__dist[end_point] != 0:
+            neighbours = self.neighbours(end_point)
+            for h in neighbours:
+                neigh_distance = self.__edges[(end_point, h)]
+                if self.__dist[end_point] - neigh_distance == self.__dist[h]:
+                    host.append(h)
+                    end_point = h
+                    break
+        return host[::-1]
+
+
+
+
+
+
 
 
 
@@ -64,3 +81,8 @@ if __name__ == '__main__':
     d.add_edge("F", "G", 2)
     d.add_edge("H", "G", 7)
     d.calc_distance("A")
+    print(d.build_chain('G'))
+    d.calc_distance("H")
+    print(d.build_chain('C'))
+    d.calc_distance("C")
+    print(d.build_chain('B'))
