@@ -1,6 +1,9 @@
 import asyncio
+import json
 import socket
 import threading
+
+import aiohttp
 
 PORT = 65434
 
@@ -35,6 +38,11 @@ async def handle_cb(rdr, wrtr):
         wrtr.write(dat.encode())
         await wrtr.drain()
         dat = (await rdr.read(1024)).decode().upper()
+        try:
+            advo = await search_advo(dat)
+            dat = json.dumps(advo)
+        except:
+            dat = "Not found"
     wrtr.write("CLOSE".encode())
     await wrtr.drain()
 
@@ -44,6 +52,29 @@ async def main2():
     async with serv:
         await serv.serve_forever()
 
+async def search_advo(fio: str) -> dict:
+    dat = await get_fio(fio)
+    async with aiohttp.ClientSession() as session:
+        async with session.get('https://erau.unba.org.ua/search', params = dat ) as response:
+            if response.ok:
+                data = await response.json()
+                if data["items"]:
+                    return data['items'][0]
+                else:
+                    print(data)
+            else:
+                 print(await response.text())
+    raise Exception("KERNEL PANIC")
+
+
+async def get_fio(fio: str) -> dict:
+    s_name = fio.strip()
+    f_name, m_name = "", ""
+    if fio.strip().find(" "):
+        s_name, *f_name, m_name = fio.split(" ")
+        f_name = " ".join(f_name)
+    return {"limit": 8, "offset": 0, 'surname': s_name, 'firstname': f_name, 'middlename': m_name}
+
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())
+    loop.run_until_complete(main2())

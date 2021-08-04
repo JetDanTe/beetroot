@@ -8,7 +8,7 @@ if __name__ == '__main__':
         s.connect((HOST, PORT))
         data = ''
         while data!='CLOSE':
-            s.sendall((input("Что шлем?")).encode())
+            s.sendall((input("Что шлем?\n")).encode())
             data = s.recv(1024).decode()
             print(data)
 
